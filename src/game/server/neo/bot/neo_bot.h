@@ -31,6 +31,17 @@ extern void BotGenerateAndWearItem(CNEO_Player* pBot, const char* itemName);
 
 extern int Bot_GetTeamByName(const char* string);
 
+// ATK uses the same ghost objective as CTG, with the clock running for defenders.
+inline bool IsGhostGameType()
+{
+	return NEORules()->GetGameType() == NEO_GAME_TYPE_CTG || NEORules()->GetGameType() == NEO_GAME_TYPE_ATK;
+}
+
+inline bool IsAtkAttackingTeam( int team )
+{
+	return NEORules()->GetGameType() == NEO_GAME_TYPE_ATK && team == NEORules()->GetAttackingTeam();
+}
+
 inline int GetEnemyTeam(int team)
 {
 	if (team == TEAM_JINRAI)
@@ -133,6 +144,8 @@ public:
 
 	bool IsCloakEnabled(void) const;
 	float GetCloakPower(void) const;
+	// smoke blocked a line of sight this bot traced; a Support answers with thermal vision
+	void OnSmokeBlockedSight(void);
 	void EnableCloak(float threshold);
 	void DisableCloak(void);
 
@@ -466,6 +479,12 @@ public:
 
 private:
 	void ToggleCloak(void);
+	void UpdateVisionMode(void);
+
+	int m_visionClass = NEO_CLASS_RANDOM;
+	CountdownTimer m_visionCheckTimer;
+	CountdownTimer m_visionHoldTimer;
+	CountdownTimer m_smokeThermalTimer;
 
 	CNEOBotSuppressiveFire m_suppressiveFire;
 
